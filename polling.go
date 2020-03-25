@@ -29,15 +29,6 @@ func pollingUpdates(t *BotT, offset uint64, timeout int) (uint64, error) {
 		return offset, err
 	}
 
-	/*fd, _ := os.OpenFile("debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	defer fd.Close()
-
-	fd.Write([]byte("\n-------------------------------\n"))
-	fd.Write([]byte(fmt.Sprintf("https://api.telegram.org/bot%s/getUpdates?timeout=%d&offset=%d", t.Token, timeout, offset)))
-	fd.Write([]byte("\n"))
-	fd.Write(body)
-	fd.Write([]byte("\n-------------------------------\n"))*/
-
 	result := &PollingResultT{}
 	err = json.Unmarshal(body, result)
 	if err != nil {
