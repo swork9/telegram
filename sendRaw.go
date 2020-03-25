@@ -32,6 +32,10 @@ func (t *BotT) sendRaw(method string, values url.Values) ([]byte, error) {
 		return nil, err
 	}
 
+	if t.Debug {
+		fmt.Println(string(body))
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Something wrong with Telegram answer: %d", resp.StatusCode)
 	}
