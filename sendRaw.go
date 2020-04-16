@@ -94,7 +94,7 @@ func (t *BotT) sendRawFile(method string, values url.Values, fileid string, file
 	}
 
 	if thumb != nil {
-		thumbPart, err := writer.CreateFormFile("attach://file", "thumb")
+		thumbPart, err := writer.CreateFormFile("thumb", "attach://file")
 		if err != nil {
 			return nil, err
 		}
