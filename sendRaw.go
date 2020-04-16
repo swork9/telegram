@@ -131,6 +131,10 @@ func (t *BotT) sendRawFile(method string, values url.Values, fileid string, file
 		return nil, err
 	}
 
+	if t.Debug {
+		fmt.Println(string(bodyContent))
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Something wrong with Telegram answer")
 	}
