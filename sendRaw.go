@@ -81,14 +81,25 @@ func (t *BotT) sendRawMessage(method string, values url.Values) (*MessageT, erro
 	return result.Message, nil
 }
 
-func (t *BotT) sendRawFile(method string, values url.Values, fileid string, file []byte) (*MessageT, error) {
+func (t *BotT) sendRawFile(method string, values url.Values, fileid string, file, thumb []byte) (*MessageT, error) {
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile(fileid, "file")
-	if err != nil {
-		return nil, err
+
+	if file != nil {
+		filePart, err := writer.CreateFormFile(fileid, "file")
+		if err != nil {
+			return nil, err
+		}
+		filePart.Write(file)
 	}
-	part.Write(file)
+
+	if thumb != nil {
+		thumbPart, err := writer.CreateFormFile(fileid, "thumb")
+		if err != nil {
+			return nil, err
+		}
+		thumbPart.Write(thumb)
+	}
 
 	for k, v := range values {
 		for _, i := range v {
@@ -96,7 +107,7 @@ func (t *BotT) sendRawFile(method string, values url.Values, fileid string, file
 		}
 	}
 
-	err = writer.Close()
+	err := writer.Close()
 	if err != nil {
 		return nil, err
 	}

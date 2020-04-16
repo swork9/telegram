@@ -31,7 +31,7 @@ func (t *BotT) SendDocumentFromBytes(chatID int64, file []byte, caption string, 
 		data.Add("reply_markup", keyboard.Get())
 	}
 
-	return t.sendRawFile("sendDocument", data, "document", file)
+	return t.sendRawFile("sendDocument", data, "document", file, nil)
 }
 
 func (t *BotT) SendDocumentFromFile(chatID int64, file string, caption string, keyboard KeyboardI) (*MessageT, error) {
