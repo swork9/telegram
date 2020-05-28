@@ -1,10 +1,15 @@
 package telegram
 
 import (
+	"fmt"
 	"strings"
 )
 
 func (t *BotT) proceedUpdate(update *UpdateT) {
+	if t.Debug {
+		fmt.Println(update)
+	}
+
 	if update.Message != nil {
 		if t.Me.ID == update.Message.From.ID {
 			return
