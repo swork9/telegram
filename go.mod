@@ -1,4 +1,4 @@
-module github.com/swork9/telegram/m/v2
+module github.com/swork9/telegram
 
 go 1.14
 
