@@ -29,6 +29,10 @@ func pollingUpdates(t *BotT, offset uint64, timeout int) (uint64, error) {
 		return offset, err
 	}
 
+	if t.Debug {
+		fmt.Println(string(body))
+	}
+
 	result := &PollingResultT{}
 	err = json.Unmarshal(body, result)
 	if err != nil {

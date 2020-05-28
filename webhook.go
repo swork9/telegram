@@ -66,6 +66,10 @@ func (t *BotT) Webhook(c *gin.Context) {
 		return
 	}
 
+	if t.Debug {
+		fmt.Println(string(body))
+	}
+
 	update := &UpdateT{}
 	err = json.Unmarshal(body, &update)
 	if err != nil {
