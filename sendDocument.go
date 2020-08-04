@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strconv"
 )
@@ -22,7 +23,7 @@ func (t *BotT) SendDocument(chatID int64, document string, caption string, keybo
 	return t.sendRawMessage("sendDocument", data)
 }
 
-func (t *BotT) SendDocumentFromBytes(chatID int64, file []byte, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendDocumentFromBytes(chatID int64, filename string, file []byte, caption string, keyboard KeyboardI) (*MessageT, error) {
 	data := url.Values{}
 	data.Add("chat_id", strconv.FormatInt(chatID, 10))
 	data.Add("caption", caption)
@@ -31,7 +32,7 @@ func (t *BotT) SendDocumentFromBytes(chatID int64, file []byte, caption string, 
 		data.Add("reply_markup", keyboard.Get())
 	}
 
-	return t.sendRawFile("sendDocument", data, "document", file, nil)
+	return t.sendRawFile("sendDocument", data, "document", filename, file, nil)
 }
 
 func (t *BotT) SendDocumentFromFile(chatID int64, file string, caption string, keyboard KeyboardI) (*MessageT, error) {
@@ -46,7 +47,7 @@ func (t *BotT) SendDocumentFromFile(chatID int64, file string, caption string, k
 		return nil, err
 	}
 
-	return t.SendDocumentFromBytes(chatID, bytes, caption, keyboard)
+	return t.SendDocumentFromBytes(chatID, filepath.Base(file), bytes, caption, keyboard)
 }
 
 func (u *UpdateT) AnswerSendDocument(chatID int64, document string, caption string, keyboard KeyboardI) {

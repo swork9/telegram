@@ -81,12 +81,12 @@ func (t *BotT) sendRawMessage(method string, values url.Values) (*MessageT, erro
 	return result.Message, nil
 }
 
-func (t *BotT) sendRawFile(method string, values url.Values, fileid string, file, thumb []byte) (*MessageT, error) {
+func (t *BotT) sendRawFile(method string, values url.Values, fileid, filename string, file, thumb []byte) (*MessageT, error) {
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
 
 	if file != nil {
-		filePart, err := writer.CreateFormFile(fileid, "file")
+		filePart, err := writer.CreateFormFile(fileid, filename)
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +94,7 @@ func (t *BotT) sendRawFile(method string, values url.Values, fileid string, file
 	}
 
 	if thumb != nil {
-		thumbPart, err := writer.CreateFormFile("thumb", "attach://file")
+		thumbPart, err := writer.CreateFormFile("thumb", "attach://"+filename)
 		if err != nil {
 			return nil, err
 		}

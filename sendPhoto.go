@@ -22,7 +22,7 @@ func (t *BotT) SendPhoto(chatID int64, photo string, caption string, keyboard Ke
 	return t.sendRawMessage("sendPhoto", data)
 }
 
-func (t *BotT) SendPhotoFromBytes(chatID int64, file []byte, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendPhotoFromBytes(chatID int64, filename string, file []byte, caption string, keyboard KeyboardI) (*MessageT, error) {
 	data := url.Values{}
 	data.Add("chat_id", strconv.FormatInt(chatID, 10))
 	data.Add("caption", caption)
@@ -31,10 +31,10 @@ func (t *BotT) SendPhotoFromBytes(chatID int64, file []byte, caption string, key
 		data.Add("reply_markup", keyboard.Get())
 	}
 
-	return t.sendRawFile("sendPhoto", data, "photo", file, nil)
+	return t.sendRawFile("sendPhoto", data, "photo", filename, file, nil)
 }
 
-func (t *BotT) SendPhotoFromFile(chatID int64, file string, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendPhotoFromFile(chatID int64, filename string, file string, caption string, keyboard KeyboardI) (*MessageT, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (t *BotT) SendPhotoFromFile(chatID int64, file string, caption string, keyb
 		return nil, err
 	}
 
-	return t.SendPhotoFromBytes(chatID, bytes, caption, keyboard)
+	return t.SendPhotoFromBytes(chatID, filename, bytes, caption, keyboard)
 }
 
 func (u *UpdateT) AnswerSendPhoto(chatID int64, photo string, caption string, keyboard KeyboardI) {

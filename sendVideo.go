@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strconv"
 )
@@ -22,7 +23,7 @@ func (t *BotT) SendVideo(chatID int64, video string, caption string, keyboard Ke
 	return t.sendRawMessage("sendVideo", data)
 }
 
-func (t *BotT) SendVideoFromBytes(chatID int64, file, thumb []byte, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendVideoFromBytes(chatID int64, filename string, file, thumb []byte, caption string, keyboard KeyboardI) (*MessageT, error) {
 	data := url.Values{}
 	data.Add("chat_id", strconv.FormatInt(chatID, 10))
 	data.Add("caption", caption)
@@ -31,7 +32,7 @@ func (t *BotT) SendVideoFromBytes(chatID int64, file, thumb []byte, caption stri
 		data.Add("reply_markup", keyboard.Get())
 	}
 
-	return t.sendRawFile("sendVideo", data, "video", file, thumb)
+	return t.sendRawFile("sendVideo", data, "video", filename, file, thumb)
 }
 
 func (t *BotT) SendVideoFromFile(chatID int64, file, thumb string, caption string, keyboard KeyboardI) (*MessageT, error) {
@@ -61,7 +62,7 @@ func (t *BotT) SendVideoFromFile(chatID int64, file, thumb string, caption strin
 		}
 	}
 
-	return t.SendVideoFromBytes(chatID, fileBytes, thumbBytes, caption, keyboard)
+	return t.SendVideoFromBytes(chatID, filepath.Base(file), fileBytes, thumbBytes, caption, keyboard)
 }
 
 func (u *UpdateT) AnswerSendVideo(chatID int64, video string, caption string, keyboard KeyboardI) {
