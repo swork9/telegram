@@ -6,36 +6,35 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strconv"
 )
 
-func (t *BotT) SendDocument(chatID int64, document string, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendDocument(chatID int64, document string, caption string, options *MessageOptions) (*MessageT, error) {
 	data := url.Values{}
+	if options != nil {
+		data = options.Get()
+	}
+
 	data.Add("chat_id", strconv.FormatInt(chatID, 10))
 	data.Add("document", document)
 	data.Add("caption", caption)
 
-	if keyboard != nil && !reflect.ValueOf(keyboard).IsNil() {
-		data.Add("reply_markup", keyboard.Get())
-	}
-
 	return t.sendRawMessage("sendDocument", data)
 }
 
-func (t *BotT) SendDocumentFromBytes(chatID int64, filename string, file []byte, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendDocumentFromBytes(chatID int64, filename string, file []byte, caption string, options *MessageOptions) (*MessageT, error) {
 	data := url.Values{}
+	if options != nil {
+		data = options.Get()
+	}
+
 	data.Add("chat_id", strconv.FormatInt(chatID, 10))
 	data.Add("caption", caption)
-
-	if keyboard != nil && !reflect.ValueOf(keyboard).IsNil() {
-		data.Add("reply_markup", keyboard.Get())
-	}
 
 	return t.sendRawFile("sendDocument", data, "document", filename, file, nil)
 }
 
-func (t *BotT) SendDocumentFromFile(chatID int64, file string, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendDocumentFromFile(chatID int64, file string, caption string, options *MessageOptions) (*MessageT, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return nil, err
@@ -47,22 +46,23 @@ func (t *BotT) SendDocumentFromFile(chatID int64, file string, caption string, k
 		return nil, err
 	}
 
-	return t.SendDocumentFromBytes(chatID, filepath.Base(file), bytes, caption, keyboard)
+	return t.SendDocumentFromBytes(chatID, filepath.Base(file), bytes, caption, options)
 }
 
-func (u *UpdateT) AnswerSendDocument(chatID int64, document string, caption string, keyboard KeyboardI) {
+func (u *UpdateT) AnswerSendDocument(chatID int64, document string, caption string, options *MessageOptions) {
 	if u.context == nil {
-		u.bot.SendDocument(chatID, document, caption, keyboard)
+		u.bot.SendDocument(chatID, document, caption, options)
 		return
 	}
 
-	data := map[string]interface{}{}
+	data := map[string]string{}
+	if options != nil {
+		data = options.GetMap()
+	}
+
 	data["method"] = "sendDocument"
 	data["document"] = document
 	data["caption"] = caption
-	if keyboard != nil && !reflect.ValueOf(keyboard).IsNil() {
-		data["reply_markup"] = keyboard.Get()
-	}
 
 	u.context.JSON(http.StatusOK, data)
 }

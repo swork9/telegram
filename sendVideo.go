@@ -6,36 +6,35 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strconv"
 )
 
-func (t *BotT) SendVideo(chatID int64, video string, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendVideo(chatID int64, video string, caption string, options *MessageOptions) (*MessageT, error) {
 	data := url.Values{}
+	if options != nil {
+		data = options.Get()
+	}
+
 	data.Add("chat_id", strconv.FormatInt(chatID, 10))
 	data.Add("video", video)
 	data.Add("caption", caption)
 
-	if keyboard != nil && !reflect.ValueOf(keyboard).IsNil() {
-		data.Add("reply_markup", keyboard.Get())
-	}
-
 	return t.sendRawMessage("sendVideo", data)
 }
 
-func (t *BotT) SendVideoFromBytes(chatID int64, filename string, file, thumb []byte, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendVideoFromBytes(chatID int64, filename string, file, thumb []byte, caption string, options *MessageOptions) (*MessageT, error) {
 	data := url.Values{}
+	if options != nil {
+		data = options.Get()
+	}
+
 	data.Add("chat_id", strconv.FormatInt(chatID, 10))
 	data.Add("caption", caption)
-
-	if keyboard != nil && !reflect.ValueOf(keyboard).IsNil() {
-		data.Add("reply_markup", keyboard.Get())
-	}
 
 	return t.sendRawFile("sendVideo", data, "video", filename, file, thumb)
 }
 
-func (t *BotT) SendVideoFromFile(chatID int64, file, thumb string, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendVideoFromFile(chatID int64, file, thumb string, caption string, options *MessageOptions) (*MessageT, error) {
 	var fileBytes, thumbBytes []byte
 
 	f, err := os.Open(file)
@@ -62,22 +61,23 @@ func (t *BotT) SendVideoFromFile(chatID int64, file, thumb string, caption strin
 		}
 	}
 
-	return t.SendVideoFromBytes(chatID, filepath.Base(file), fileBytes, thumbBytes, caption, keyboard)
+	return t.SendVideoFromBytes(chatID, filepath.Base(file), fileBytes, thumbBytes, caption, options)
 }
 
-func (u *UpdateT) AnswerSendVideo(chatID int64, video string, caption string, keyboard KeyboardI) {
+func (u *UpdateT) AnswerSendVideo(chatID int64, video string, caption string, options *MessageOptions) {
 	if u.context == nil {
-		u.bot.SendVideo(chatID, video, caption, keyboard)
+		u.bot.SendVideo(chatID, video, caption, options)
 		return
 	}
 
-	data := map[string]interface{}{}
+	data := map[string]string{}
+	if options != nil {
+		data = options.GetMap()
+	}
+
 	data["method"] = "sendVideo"
 	data["video"] = video
 	data["caption"] = caption
-	if keyboard != nil && !reflect.ValueOf(keyboard).IsNil() {
-		data["reply_markup"] = keyboard.Get()
-	}
 
 	u.context.JSON(http.StatusOK, data)
 }

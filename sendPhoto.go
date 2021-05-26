@@ -5,36 +5,35 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"reflect"
 	"strconv"
 )
 
-func (t *BotT) SendPhoto(chatID int64, photo string, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendPhoto(chatID int64, photo string, caption string, options *MessageOptions) (*MessageT, error) {
 	data := url.Values{}
+	if options != nil {
+		data = options.Get()
+	}
+
 	data.Add("chat_id", strconv.FormatInt(chatID, 10))
 	data.Add("photo", photo)
 	data.Add("caption", caption)
 
-	if keyboard != nil && !reflect.ValueOf(keyboard).IsNil() {
-		data.Add("reply_markup", keyboard.Get())
-	}
-
 	return t.sendRawMessage("sendPhoto", data)
 }
 
-func (t *BotT) SendPhotoFromBytes(chatID int64, filename string, file []byte, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendPhotoFromBytes(chatID int64, filename string, file []byte, caption string, options *MessageOptions) (*MessageT, error) {
 	data := url.Values{}
+	if options != nil {
+		data = options.Get()
+	}
+
 	data.Add("chat_id", strconv.FormatInt(chatID, 10))
 	data.Add("caption", caption)
-
-	if keyboard != nil && !reflect.ValueOf(keyboard).IsNil() {
-		data.Add("reply_markup", keyboard.Get())
-	}
 
 	return t.sendRawFile("sendPhoto", data, "photo", filename, file, nil)
 }
 
-func (t *BotT) SendPhotoFromFile(chatID int64, filename string, file string, caption string, keyboard KeyboardI) (*MessageT, error) {
+func (t *BotT) SendPhotoFromFile(chatID int64, filename string, file string, caption string, options *MessageOptions) (*MessageT, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return nil, err
@@ -46,22 +45,23 @@ func (t *BotT) SendPhotoFromFile(chatID int64, filename string, file string, cap
 		return nil, err
 	}
 
-	return t.SendPhotoFromBytes(chatID, filename, bytes, caption, keyboard)
+	return t.SendPhotoFromBytes(chatID, filename, bytes, caption, options)
 }
 
-func (u *UpdateT) AnswerSendPhoto(chatID int64, photo string, caption string, keyboard KeyboardI) {
+func (u *UpdateT) AnswerSendPhoto(chatID int64, photo string, caption string, options *MessageOptions) {
 	if u.context == nil {
-		u.bot.SendPhoto(chatID, photo, caption, keyboard)
+		u.bot.SendPhoto(chatID, photo, caption, options)
 		return
 	}
 
-	data := map[string]interface{}{}
+	data := map[string]string{}
+	if options != nil {
+		data = options.GetMap()
+	}
+
 	data["method"] = "sendPhoto"
 	data["photo"] = photo
 	data["caption"] = caption
-	if keyboard != nil && !reflect.ValueOf(keyboard).IsNil() {
-		data["reply_markup"] = keyboard.Get()
-	}
 
 	u.context.JSON(http.StatusOK, data)
 }
