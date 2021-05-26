@@ -24,7 +24,7 @@ type ChatT struct {
 	ID        int64  `json:"id"`
 	Firstname string `json:"first_name"`
 	Lastname  string `json:"last_name"`
-	Username  string `json:"user_name"`
+	Username  string `json:"username"`
 	Type      string `json:"type"`
 }
 
