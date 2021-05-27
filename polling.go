@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"net/url"
 )
 
 type PollingResultT struct {
-	Ok     bool       `json:"ok"`
-	Result []*UpdateT `json:"result"`
+	Ok          bool       `json:"ok"`
+	ErrorCode   int        `json:"error_code,omitempty"`
+	Description string     `json:"description,omitempty"`
+	Result      []*UpdateT `json:"result"`
 }
 
 func pollingUpdates(t *BotT, offset uint64, timeout int) (uint64, error) {
@@ -19,10 +20,6 @@ func pollingUpdates(t *BotT, offset uint64, timeout int) (uint64, error) {
 		return offset, err
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return offset, fmt.Errorf("Something wrong with Telegram answer")
-	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -36,7 +33,11 @@ func pollingUpdates(t *BotT, offset uint64, timeout int) (uint64, error) {
 	result := &PollingResultT{}
 	err = json.Unmarshal(body, result)
 	if err != nil {
-		return offset, err
+		return offset, fmt.Errorf("telegram http status: %d. error: %s", resp.StatusCode, err.Error())
+	}
+
+	if !result.Ok {
+		return offset, fmt.Errorf("telegram http status: %d. error code: %d. %s", resp.StatusCode, result.ErrorCode, result.Description)
 	}
 
 	for _, update := range result.Result {
@@ -61,7 +62,7 @@ func (t *BotT) StartPolling(timeout int) error {
 	var offset uint64
 	var err error
 
-	if _, err = t.sendRaw("deleteWebhook", url.Values{}); err != nil {
+	if _, _, err = t.sendRaw("deleteWebhook", url.Values{}); err != nil {
 		return err
 	}
 

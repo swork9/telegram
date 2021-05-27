@@ -49,9 +49,9 @@ func (t *BotT) SendDocumentFromFile(chatID int64, file string, caption string, o
 	return t.SendDocumentFromBytes(chatID, filepath.Base(file), bytes, caption, options)
 }
 
-func (u *UpdateT) AnswerSendDocument(chatID int64, document string, caption string, options *MessageOptions) {
+func (u *UpdateT) SendDocument(chatID int64, document string, caption string, options *MessageOptions) {
 	if u.context == nil {
-		u.bot.SendDocument(chatID, document, caption, options)
+		_, _ = u.bot.SendDocument(chatID, document, caption, options)
 		return
 	}
 

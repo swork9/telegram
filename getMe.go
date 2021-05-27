@@ -7,12 +7,14 @@ import (
 )
 
 type GetMeResultT struct {
-	Ok     bool   `json:"ok"`
-	Result *UserT `json:"result"`
+	Ok          bool   `json:"ok"`
+	ErrorCode   int    `json:"error_code,omitempty"`
+	Description string `json:"description,omitempty"`
+	Result      *UserT `json:"result"`
 }
 
 func (t *BotT) GetMe() (*UserT, error) {
-	body, err := t.sendRaw("getMe", url.Values{})
+	body, httpStatusCode, err := t.sendRaw("getMe", url.Values{})
 	if err != nil {
 		return nil, err
 	}
@@ -20,11 +22,11 @@ func (t *BotT) GetMe() (*UserT, error) {
 	result := &GetMeResultT{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("telegram http status: %d. error: %s", httpStatusCode, err.Error())
 	}
 
 	if !result.Ok {
-		return nil, fmt.Errorf("Telegram refuse our getMe request")
+		return nil, fmt.Errorf("telegram http status: %d. error code: %d. %s", httpStatusCode, result.ErrorCode, result.Description)
 	}
 
 	return result.Result, nil

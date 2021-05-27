@@ -8,18 +8,28 @@ type MediaGroupItem struct {
 	Caption string `json:"caption,omitempty"`
 }
 
-type MediaGroup []MediaGroupItem
+type MediaGroup struct {
+	items []MediaGroupItem
+}
 
-func (m MediaGroup) SetCaption(caption string) {
-	if len(m) == 0 {
+func (m *MediaGroup) Len() int {
+	return len(m.items)
+}
+
+func (m *MediaGroup) Add(mediaType, mediaID string) {
+	m.items = append(m.items, MediaGroupItem{Type: mediaType, Media: mediaID})
+}
+
+func (m *MediaGroup) SetCaption(caption string) {
+	if len(m.items) == 0 {
 		return
 	}
 
-	m[0].Caption = caption
+	m.items[0].Caption = caption
 }
 
-func (m MediaGroup) Get() string {
-	bytes, err := json.Marshal(m)
+func (m *MediaGroup) Get() string {
+	bytes, err := json.Marshal(m.items)
 	if err != nil {
 		return "[]"
 	}
@@ -27,14 +37,6 @@ func (m MediaGroup) Get() string {
 	return string(bytes)
 }
 
-func NewMediaGroup(mediaType string, items []string) MediaGroup {
-	mediaGroup := MediaGroup{}
-	for _, i := range items {
-		mediaGroup = append(mediaGroup, MediaGroupItem{
-			Type:  mediaType,
-			Media: i,
-		})
-	}
-
-	return mediaGroup
+func NewMediaGroup() *MediaGroup {
+	return &MediaGroup{}
 }

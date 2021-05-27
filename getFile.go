@@ -9,15 +9,17 @@ import (
 )
 
 type GetFileResultT struct {
-	Ok     bool   `json:"ok"`
-	Result *FileT `json:"result"`
+	Ok          bool   `json:"ok"`
+	ErrorCode   int    `json:"error_code,omitempty"`
+	Description string `json:"description,omitempty"`
+	Result      *FileT `json:"result"`
 }
 
 func (t *BotT) GetFile(fileID string) (*FileT, []byte, error) {
 	data := url.Values{}
 	data.Add("file_id", fileID)
 
-	body, err := t.sendRaw("getFile", data)
+	body, httpStatusCode, err := t.sendRaw("getFile", data)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -25,11 +27,11 @@ func (t *BotT) GetFile(fileID string) (*FileT, []byte, error) {
 	result := &GetFileResultT{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("telegram http status: %d. error: %s", httpStatusCode, err.Error())
 	}
 
 	if !result.Ok {
-		return nil, nil, fmt.Errorf("Telegram refuse our getFile request")
+		return nil, nil, fmt.Errorf("telegram http status: %d. error code: %d. %s", httpStatusCode, result.ErrorCode, result.Description)
 	}
 
 	if t.Debug {
@@ -43,7 +45,7 @@ func (t *BotT) GetFile(fileID string) (*FileT, []byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, nil, fmt.Errorf("Something wrong with Telegram file answer: %d", resp.StatusCode)
+		return nil, nil, fmt.Errorf("telegram http status: %d. file %s unavailable", httpStatusCode, fileID)
 	}
 
 	body, err = ioutil.ReadAll(resp.Body)
