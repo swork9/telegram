@@ -65,12 +65,17 @@ func (t *BotT) SendVideoFromFile(chatID int64, file, thumb string, caption strin
 	return t.SendVideoFromBytes(chatID, filepath.Base(file), fileBytes, thumbBytes, caption, options)
 }
 
-func (t *BotT) SendVideoGroup(chatID int64, videos []string, caption string, options *MessageOptions) (*MessageT, error) {
+func (t *BotT) SendVideoGroup(chatID int64, videos []string, caption string, options *MessageOptions) ([]*MessageT, error) {
 	if len(videos) == 0 {
 		return nil, fmt.Errorf("videos slice can't be nil")
 	}
 	if len(videos) == 1 {
-		return t.SendVideo(chatID, videos[0], caption, options)
+		r, err := t.SendVideo(chatID, videos[0], caption, options)
+		if err != nil {
+			return nil, err
+		}
+
+		return []*MessageT{r}, nil
 	}
 
 	data := url.Values{}
@@ -85,7 +90,7 @@ func (t *BotT) SendVideoGroup(chatID int64, videos []string, caption string, opt
 
 	data.Add("media", mediaGroup.Get())
 
-	return t.sendRawMessage("sendMediaGroup", data)
+	return t.sendRawMessageGroup("sendMediaGroup", data)
 }
 
 func (u *UpdateT) SendVideo(chatID int64, video string, caption string, options *MessageOptions) {

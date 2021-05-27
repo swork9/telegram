@@ -49,12 +49,17 @@ func (t *BotT) SendPhotoFromFile(chatID int64, filename string, file string, cap
 	return t.SendPhotoFromBytes(chatID, filename, bytes, caption, options)
 }
 
-func (t *BotT) SendPhotoGroup(chatID int64, photos []string, caption string, options *MessageOptions) (*MessageT, error) {
+func (t *BotT) SendPhotoGroup(chatID int64, photos []string, caption string, options *MessageOptions) ([]*MessageT, error) {
 	if len(photos) == 0 {
 		return nil, fmt.Errorf("photos slice can't be nil")
 	}
 	if len(photos) == 1 {
-		return t.SendVideo(chatID, photos[0], caption, options)
+		r, err := t.SendPhoto(chatID, photos[0], caption, options)
+		if err != nil {
+			return nil, err
+		}
+
+		return []*MessageT{r}, nil
 	}
 
 	data := url.Values{}
@@ -69,7 +74,7 @@ func (t *BotT) SendPhotoGroup(chatID int64, photos []string, caption string, opt
 
 	data.Add("media", mediaGroup.Get())
 
-	return t.sendRawMessage("sendMediaGroup", data)
+	return t.sendRawMessageGroup("sendMediaGroup", data)
 }
 
 func (u *UpdateT) SendPhoto(chatID int64, photo string, caption string, options *MessageOptions) {

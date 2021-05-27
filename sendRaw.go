@@ -20,6 +20,11 @@ type MessageResultT struct {
 	Message *MessageT `json:"result"`
 }
 
+type MessageGroupResultT struct {
+	Ok      bool        `json:"ok"`
+	Message []*MessageT `json:"result"`
+}
+
 func (t *BotT) sendRaw(method string, values url.Values) ([]byte, error) {
 	resp, err := t.client.PostForm("https://api.telegram.org/bot"+t.Token+"/"+method, values)
 	if err != nil {
@@ -69,6 +74,25 @@ func (t *BotT) sendRawMessage(method string, values url.Values) (*MessageT, erro
 	}
 
 	result := &MessageResultT{}
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	if !result.Ok {
+		return nil, fmt.Errorf("Telegram reject our message")
+	}
+
+	return result.Message, nil
+}
+
+func (t *BotT) sendRawMessageGroup(method string, values url.Values) ([]*MessageT, error) {
+	body, err := t.sendRaw(method, values)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &MessageGroupResultT{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err

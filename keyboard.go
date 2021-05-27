@@ -18,12 +18,22 @@ type KeyboardRow struct {
 	buttons []*KeyboardButton
 }
 
-func (r *KeyboardRow) AddButton(text, url, data string) *KeyboardRow {
+func (r *KeyboardRow) AddButton(text, data string) *KeyboardRow {
+	r.buttons = append(r.buttons,
+		&KeyboardButton{
+			Text: text,
+			Data: data,
+		},
+	)
+
+	return r
+}
+
+func (r *KeyboardRow) AddURL(text, url string) *KeyboardRow {
 	r.buttons = append(r.buttons,
 		&KeyboardButton{
 			Text: text,
 			Url:  url,
-			Data: data,
 		},
 	)
 
