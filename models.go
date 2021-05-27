@@ -29,17 +29,18 @@ type ChatT struct {
 }
 
 type MessageT struct {
-	ID       uint64     `json:"message_id"`
-	Date     uint64     `json:"date"`
-	From     *UserT     `json:"from"`
-	Chat     *ChatT     `json:"chat"`
-	Photo    []*PhotoT  `json:"photo"`
-	Document *DocumentT `json:"document"`
-	Video    *VideoT    `json:"video"`
-	Sticker  *StickerT  `json:"sticker"`
-	Entities []*EntityT `json:"entities"`
-	Text     string     `json:"text"`
-	Caption  string     `json:"caption"`
+	ID           uint64     `json:"message_id"`
+	Date         uint64     `json:"date"`
+	From         *UserT     `json:"from"`
+	Chat         *ChatT     `json:"chat"`
+	Photo        []*PhotoT  `json:"photo"`
+	Document     *DocumentT `json:"document"`
+	Video        *VideoT    `json:"video"`
+	Sticker      *StickerT  `json:"sticker"`
+	Entities     []*EntityT `json:"entities"`
+	MediaGroupID string     `json:"media_group_id"`
+	Text         string     `json:"text"`
+	Caption      string     `json:"caption"`
 }
 
 type FileT struct {
