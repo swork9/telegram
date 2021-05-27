@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -64,9 +65,32 @@ func (t *BotT) SendVideoFromFile(chatID int64, file, thumb string, caption strin
 	return t.SendVideoFromBytes(chatID, filepath.Base(file), fileBytes, thumbBytes, caption, options)
 }
 
-func (u *UpdateT) AnswerSendVideo(chatID int64, video string, caption string, options *MessageOptions) {
+func (t *BotT) SendVideoGroup(chatID int64, videos []string, caption string, options *MessageOptions) (*MessageT, error) {
+	if len(videos) == 0 {
+		return nil, fmt.Errorf("videos slice can't be nil")
+	}
+	if len(videos) == 1 {
+		return t.SendVideo(chatID, videos[0], caption, options)
+	}
+
+	data := url.Values{}
+	if options != nil {
+		data = options.Get()
+	}
+
+	data.Add("chat_id", strconv.FormatInt(chatID, 10))
+
+	mediaGroup := NewMediaGroup("video", videos)
+	mediaGroup.SetCaption(caption)
+
+	data.Add("media", mediaGroup.Get())
+
+	return t.sendRawMessage("sendMediaGroup", data)
+}
+
+func (u *UpdateT) SendVideo(chatID int64, video string, caption string, options *MessageOptions) {
 	if u.context == nil {
-		u.bot.SendVideo(chatID, video, caption, options)
+		_, _ = u.bot.SendVideo(chatID, video, caption, options)
 		return
 	}
 
@@ -78,6 +102,35 @@ func (u *UpdateT) AnswerSendVideo(chatID int64, video string, caption string, op
 	data["method"] = "sendVideo"
 	data["video"] = video
 	data["caption"] = caption
+
+	u.context.JSON(http.StatusOK, data)
+}
+
+func (u *UpdateT) SendVideoGroup(chatID int64, videos []string, caption string, options *MessageOptions) {
+	if u.context == nil {
+		_, _ = u.bot.SendVideoGroup(chatID, videos, caption, options)
+		return
+	}
+
+	if len(videos) == 0 {
+		return
+	}
+	if len(videos) == 1 {
+		u.SendVideo(chatID, videos[0], caption, options)
+		return
+	}
+
+	data := map[string]string{}
+	if options != nil {
+		data = options.GetMap()
+	}
+
+	data["method"] = "sendMediaGroup"
+
+	mediaGroup := NewMediaGroup("video", videos)
+	mediaGroup.SetCaption(caption)
+
+	data["media"] = mediaGroup.Get()
 
 	u.context.JSON(http.StatusOK, data)
 }

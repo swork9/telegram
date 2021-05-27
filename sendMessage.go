@@ -78,7 +78,7 @@ func (t *BotT) CallbackQuery(callbackID string, text string) {
 	t.sendRawMethod("answerCallbackQuery", data)
 }
 
-func (u *UpdateT) AnswerSendMessage(chatID int64, text string, options *MessageOptions) {
+func (u *UpdateT) SendMessage(chatID int64, text string, options *MessageOptions) {
 	if u.context == nil {
 		u.bot.SendMessage(chatID, text, options)
 		return
@@ -96,7 +96,7 @@ func (u *UpdateT) AnswerSendMessage(chatID int64, text string, options *MessageO
 	u.context.JSON(http.StatusOK, data)
 }
 
-func (u *UpdateT) AnswerEditMessageText(chatID int64, messageID uint64, text string) {
+func (u *UpdateT) EditMessageText(chatID int64, messageID uint64, text string) {
 	if u.context == nil {
 		u.bot.EditMessageText(chatID, messageID, text)
 		return
@@ -111,7 +111,7 @@ func (u *UpdateT) AnswerEditMessageText(chatID int64, messageID uint64, text str
 	u.context.JSON(http.StatusOK, data)
 }
 
-func (u *UpdateT) AnswerEditMessageCaption(chatID int64, messageID uint64, caption string) {
+func (u *UpdateT) EditMessageCaption(chatID int64, messageID uint64, caption string) {
 	if u.context == nil {
 		u.bot.EditMessageCaption(chatID, messageID, caption)
 		return
@@ -126,7 +126,7 @@ func (u *UpdateT) AnswerEditMessageCaption(chatID int64, messageID uint64, capti
 	u.context.JSON(http.StatusOK, data)
 }
 
-func (u *UpdateT) AnswerEditMessageKeyboard(chatID int64, messageID uint64, keyboard KeyboardI) {
+func (u *UpdateT) EditMessageKeyboard(chatID int64, messageID uint64, keyboard KeyboardI) {
 	if u.context == nil {
 		u.bot.EditMessageKeyboard(chatID, messageID, keyboard)
 		return
@@ -143,7 +143,7 @@ func (u *UpdateT) AnswerEditMessageKeyboard(chatID int64, messageID uint64, keyb
 	u.context.JSON(http.StatusOK, data)
 }
 
-func (u *UpdateT) AnswerDeleteMessage(chatID int64, messageID uint64) {
+func (u *UpdateT) DeleteMessage(chatID int64, messageID uint64) {
 	if u.context == nil {
 		u.bot.DeleteMessage(chatID, messageID)
 		return
@@ -157,7 +157,7 @@ func (u *UpdateT) AnswerDeleteMessage(chatID int64, messageID uint64) {
 	u.context.JSON(http.StatusOK, data)
 }
 
-func (u *UpdateT) AnswerCallbackQuery(text string) {
+func (u *UpdateT) CallbackQuery(text string) {
 	if u.Callback == nil {
 		return
 	}
