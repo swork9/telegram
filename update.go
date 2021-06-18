@@ -6,7 +6,7 @@ import (
 
 func (t *BotT) proceedUpdate(update *UpdateT) {
 	if update.Message != nil {
-		if t.Me.ID == update.Message.From.ID {
+		if t.MyID == update.Message.From.ID {
 			return
 		}
 
