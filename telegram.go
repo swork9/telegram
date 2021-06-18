@@ -26,11 +26,5 @@ func New(token string) (*BotT, error) {
 	bot.CommandHandlers = make(map[string]CommandHandlerF)
 	bot.CallBackHandlers = make(map[string]CallbackHandlerF)
 
-	var err error
-	bot.Me, err = bot.GetMe()
-	if err != nil {
-		return nil, err
-	}
-
 	return bot, nil
 }
