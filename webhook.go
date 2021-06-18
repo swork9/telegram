@@ -11,6 +11,12 @@ import (
 )
 
 func (t *BotT) EnableWebhook(webhookURL string) error {
+	var err error
+	t.Me, err = t.GetMe()
+	if err != nil {
+		return err
+	}
+
 	resp, err := t.client.PostForm("https://api.telegram.org/bot"+t.Token+"/setWebhook", url.Values{"url": {webhookURL}})
 	if err != nil {
 		return err

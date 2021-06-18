@@ -62,6 +62,11 @@ func (t *BotT) StartPolling(timeout int) error {
 	var offset uint64
 	var err error
 
+	t.Me, err = t.GetMe()
+	if err != nil {
+		return err
+	}
+
 	if _, _, err = t.sendRaw("deleteWebhook", url.Values{}); err != nil {
 		return err
 	}
