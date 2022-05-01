@@ -2,6 +2,17 @@ package telegram
 
 import "github.com/gin-gonic/gin"
 
+type ChatMemberStatus string
+
+const (
+	ChatMemberOwner         ChatMemberStatus = "creator"
+	ChatMemberAdministrator                  = "administrator"
+	ChatMemberMember                         = "member"
+	ChatMemberRestricted                     = "restricted"
+	ChatMemberLeft                           = "left"
+	ChatMemberBanned                         = "kicked"
+)
+
 type UpdateT struct {
 	bot     *BotT
 	context *gin.Context
@@ -20,6 +31,11 @@ type UserT struct {
 	LanguageCode string `json:"language_code"`
 }
 
+type ChatMember struct {
+	User   *UserT           `json:"user"`
+	Status ChatMemberStatus `json:"status"`
+}
+
 type ChatT struct {
 	ID        int64  `json:"id"`
 	Firstname string `json:"first_name"`
@@ -28,19 +44,26 @@ type ChatT struct {
 	Type      string `json:"type"`
 }
 
+type ForwardFromT struct {
+	ID        int64  `json:"id"`
+	IsBot     bool   `json:"is_bot"`
+	FirstName string `json:"first_name"`
+}
+
 type MessageT struct {
-	ID           uint64     `json:"message_id"`
-	Date         uint64     `json:"date"`
-	From         *UserT     `json:"from"`
-	Chat         *ChatT     `json:"chat"`
-	Photo        []*PhotoT  `json:"photo"`
-	Document     *DocumentT `json:"document"`
-	Video        *VideoT    `json:"video"`
-	Sticker      *StickerT  `json:"sticker"`
-	Entities     []*EntityT `json:"entities"`
-	MediaGroupID string     `json:"media_group_id"`
-	Text         string     `json:"text"`
-	Caption      string     `json:"caption"`
+	ID           uint64        `json:"message_id"`
+	Date         uint64        `json:"date"`
+	From         *UserT        `json:"from"`
+	ForwardFrom  *ForwardFromT `json:"forward_from"`
+	Chat         *ChatT        `json:"chat"`
+	Photo        []*PhotoT     `json:"photo"`
+	Document     *DocumentT    `json:"document"`
+	Video        *VideoT       `json:"video"`
+	Sticker      *StickerT     `json:"sticker"`
+	Entities     []*EntityT    `json:"entities"`
+	MediaGroupID string        `json:"media_group_id"`
+	Text         string        `json:"text"`
+	Caption      string        `json:"caption"`
 }
 
 type FileT struct {
